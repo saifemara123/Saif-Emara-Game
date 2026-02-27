@@ -2,17 +2,22 @@ import pygame
 from pygame.locals import *
 import numpy as np
 
-TileMap = 'tmw_desert_spacing.png'
+TileMapFile = 'tmw_desert_spacing.png'
 
 class MainGame:
-    W = 900              # Window Width
-    H = 700              # Window Height
+    W = 960              # Window Width
+    H = 704              # Window Height
     Window_Size = W, H
 
     def __init__(self):                                                 # Initializer
         pygame.init()                                                   # Initialize Game
+        
+        my_tileset = Tileset(TileMapFile)
+        self.mapmaker = Map_Maker(my_tileset)
+
         self.screen = pygame.display.set_mode(MainGame.Window_Size)     # First and Main Screen
         pygame.display.set_caption("Key Man")                           # Title of the Game
+        
         self.running = True                                             # State
 
     def run(self):
@@ -21,26 +26,30 @@ class MainGame:
                 if event.type == QUIT:            # Exit to Quit
                     self.running = False          # Changes state to quit
 
-                elif event.type == KEYDOWN:       # Checks for any key pressed
-                    if event.key == K_l:          # Checks if the key is L   (Key_L)
-                        self.load_image(TileMap)  # Runs load image on the tile map
-                    elif event.key == K_r:
-                        Tilemap.set_random()
+                elif event.type == KEYDOWN:             # Checks for any key pressed
+                    if event.key == K_l:                # Checks if the key is L   (Key_L)
+                        self.load_image(TileMapFile)    # Runs load image on the tile map
+
+                    elif event.key == K_r:                               # Checks if the key is R
+                        self.mapmaker.set_random()                       # Runs the randomized
+                        self.screen.blit(self.mapmaker.image, (0, 0))    # Paints the created tilemap onto the self.screen 
+                        pygame.display.update()                          # Refreshes the monitor
+
+                    elif event.key == K_0:                               # Checks if the key is 0
+                        self.mapmaker.set_zero()                         # Runs the set zero
+                        self.screen.blit(self.mapmaker.image, (0, 0))    # Paints the created tilemap onto the self.screen 
+                        pygame.display.update()                          # Refreshes the monitor
 
         pygame.quit()                             # Quits when self.running is false
 
-    def load_image(self, TileMap):
-        self.file = TileMap                       # The tilemap is set to file
-        self.image = pygame.image.load(TileMap)   # and loaded
-        self.rect = self.image.get_rect()         # gets the size of the image as a rectangle saving it to self.rect
+    def load_image(self, TileMapFile):
+        self.file = TileMapFile                       # The tilemap is set to file
+        self.image = pygame.image.load(TileMapFile)   # and loaded
+        self.rect = self.image.get_rect()             # gets the size of the image as a rectangle saving it to self.rect
 
 
         self.screen.blit(self.image, (0, 0))      # Draws the image onto the screen with the second variable determining the coords of the top left corner
         pygame.display.update()                   # Updates the changes made to the display
-
-game = MainGame()                                 # Sets the initializer to game
-game.run()                                        # Runs run
-
 
 
 class Tileset:                                                         # Splits up a tile map into tiles
@@ -74,8 +83,8 @@ class Tileset:                                                         # Splits 
     
 
 
-class Tilemap:                                                   # Creates the map
-    def __init__(self, tileset, size=(10, 20), rect=None):       # Accepts the tileset, a tile x * y size and an optional rect variable
+class Map_Maker:                                                   # Creates the map
+    def __init__(self, tileset, size=(22, 30), rect=None):         # Accepts the tileset, a tile x * y size and an optional rect variable
         self.size = size
         self.tileset = tileset
         self.map = np.zeros(size, dtype=int)                 # Creates an array of zeroes representing no tiles in the map
@@ -109,3 +118,8 @@ class Tilemap:                                                   # Creates the m
 
     def __str__(self):
         return f'{self.__class__.__name__} {self.size}'   # Handles the output of printing a tilemap to the terminal  
+    
+
+if __name__ == "__main__":
+    game = MainGame()                                 # Sets the initializer to game
+    game.run()                                        # Runs the game
